@@ -1,10 +1,18 @@
 import binascii
 from .types import *
 
-CompatibleJSONIntegerCode = '$ard.integer'
-CompatibleJSONUIntegerCode = '$ard.uinteger'
-CompatibleJSONBytesCode = '$ard.bytes'
-CompatibleJSONMapCode = '$ard.map'
+__all__ = (
+    'CJSON_INTEGER_CODE',
+    'CJSON_UINTEGER_CODE',
+    'CJSON_BYTES_CODE',
+    'CJSON_MAP_CODE',
+    'to_cjson',
+    'from_cjson')
+
+CJSON_INTEGER_CODE = '$ard.integer'
+CJSON_UINTEGER_CODE = '$ard.uinteger'
+CJSON_BYTES_CODE = '$ard.bytes'
+CJSON_MAP_CODE = '$ard.map'
 
 def to_cjson(value):
     value, _ = _to_cjson(value)
@@ -15,8 +23,8 @@ def _to_cjson(value):
         converted = False
         list_ = []
         for value_ in value:
-            value_, valueConverted = _to_cjson(value_)
-            if valueConverted:
+            value_, value_converted = _to_cjson(value_)
+            if value_converted:
                 converted = True
             list_.append(value_)
         if converted:
@@ -26,77 +34,69 @@ def _to_cjson(value):
         converted = False
         list_ = []
         for value_ in value:
-            value_, valueConverted = _to_cjson(value_)
-            if valueConverted:
+            value_, value_converted = _to_cjson(value_)
+            if value_converted:
                 converted = True
             list_.append(value_)
         if converted:
             return tuple(list_), True
 
-    elif isinstance(value, dict):
+    elif isinstance(value, (dict, Map)):
         if len(value) == 1:
             # Check if we need escaping
             try:
-                value_, _ = _to_cjson(value[CompatibleJSONIntegerCode])
-                return {'$'+CompatibleJSONIntegerCode: value_}, True
+                value_, _ = _to_cjson(value[CJSON_INTEGER_CODE])
+                return {'$'+CJSON_INTEGER_CODE: value_}, True
             except KeyError:
                 pass
             try:
-                value_, _ = _to_cjson(value[CompatibleJSONUIntegerCode])
-                return {'$'+CompatibleJSONUIntegerCode: value_}, True
+                value_, _ = _to_cjson(value[CJSON_UINTEGER_CODE])
+                return {'$'+CJSON_UINTEGER_CODE: value_}, True
             except KeyError:
                 pass
             try:
-                value_, _ = _to_cjson(value[CompatibleJSONBytesCode])
-                return {'$'+CompatibleJSONBytesCode: value_}, True
+                value_, _ = _to_cjson(value[CJSON_BYTES_CODE])
+                return {'$'+CJSON_BYTES_CODE: value_}, True
             except KeyError:
                 pass
             try:
-                value_, _ = _to_cjson(value[CompatibleJSONMapCode])
-                return {'$'+CompatibleJSONMapCode: value_}, True
+                value_, _ = _to_cjson(value[CJSON_MAP_CODE])
+                return {'$'+CJSON_MAP_CODE: value_}, True
             except KeyError:
                 pass
 
         converted = False
-        useList = False
+        use_list = False
         dict_ = {}
         list_ = []
         for key, value_ in value.items():
-            value_, valueConverted = _to_cjson(value_)
-            if valueConverted:
+            value_, value_converted = _to_cjson(value_)
+            if value_converted:
                 converted = True
             if isinstance(key, str):
                 list_.append({'key': key, 'value': value_})
-                if not useList:
+                if not use_list:
                     # We can stop building the dict_ if we switched to the list
                     dict_[key] = value_
             else:
                 key, _ = _to_cjson(key)
                 list_.append({'key': key, 'value': value_})
-                useList = True
+                use_list = True
                 converted = True
         if converted:
-            if useList:
-                return {CompatibleJSONMapCode: list_}, True
+            if use_list:
+                return {CJSON_MAP_CODE: list_}, True
             else:
                 return dict_, True
 
-    elif isinstance(value, Map):
-        list_ = []
-        for key, value_ in value.items():
-            key, _ = _to_cjson(key)
-            value_, _ = _to_cjson(value_)
-            list_.append({'key': key, 'value': value_})
-        return {CompatibleJSONMapCode: list_}, True
-
     elif isinstance(value, UInteger): # must be before checking for 'int'
-        return {CompatibleJSONUIntegerCode: str(value)}, True
+        return {CJSON_UINTEGER_CODE: str(value)}, True
 
     elif isinstance(value, int):
-        return {CompatibleJSONIntegerCode: str(value)}, True
+        return {CJSON_INTEGER_CODE: str(value)}, True
 
     elif isinstance(value, bytes):
-        return {CompatibleJSONBytesCode: binascii.b2a_base64(value).decode()}, True
+        return {CJSON_BYTES_CODE: binascii.b2a_base64(value).decode()}, True
 
     return value, False
 
@@ -109,8 +109,8 @@ def _from_cjson(value):
         converted = False
         list_ = []
         for value_ in value:
-            value_, valueConverted = _from_cjson(value_)
-            if valueConverted:
+            value_, value_converted = _from_cjson(value_)
+            if value_converted:
                 converted = True
             list_.append(value_)
         if converted:
@@ -120,27 +120,27 @@ def _from_cjson(value):
         converted = False
         list_ = []
         for value_ in value:
-            value_, valueConverted = _from_cjson(value_)
-            if valueConverted:
+            value_, value_converted = _from_cjson(value_)
+            if value_converted:
                 converted = True
             list_.append(value_)
         if converted:
             return tuple(list_), True
 
-    elif isinstance(value, dict):
+    elif isinstance(value, (dict, Map)):
         if len(value) == 1:
             # Check for codes
             try:
-                return int(value[CompatibleJSONIntegerCode]), True
+                return int(value[CJSON_INTEGER_CODE]), True
             except KeyError:
                 try:
-                    return UInteger(value[CompatibleJSONUIntegerCode]), True
+                    return UInteger(value[CJSON_UINTEGER_CODE]), True
                 except KeyError:
                     try:
-                        return binascii.a2b_base64(value[CompatibleJSONBytesCode]), True
+                        return binascii.a2b_base64(value[CJSON_BYTES_CODE]), True
                     except KeyError:
                         try:
-                            map_ = value[CompatibleJSONMapCode]
+                            map_ = value[CJSON_MAP_CODE]
                             map__ = Map()
                             for entry in map_:
                                 key, _ = _from_cjson(entry['key'])
@@ -159,9 +159,9 @@ def _from_cjson(value):
         converted = False
         map_ = Map()
         for key, value_ in value.items():
-            key, keyConverted = _from_cjson(key)
-            value_, valueConverted = _from_cjson(value_)
-            if keyConverted or valueConverted:
+            key, key_converted = _from_cjson(key)
+            value_, value_converted = _from_cjson(value_)
+            if key_converted or value_converted:
                 converted = True
             map_[key] = value_
         if converted:

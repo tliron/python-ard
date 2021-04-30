@@ -1,14 +1,21 @@
 
+import collections
+
+__all__ = (
+    'UInteger',
+    'Map')
+
 class UInteger(int):
     '''
     An int that will be marked as unsigned where necessary.
     '''
 
-class Map:
+class Map(collections.MutableMapping):
     '''
-    A dict-like object that supports unhashable keys.
-
-    Not optimized for performance.
+    A dict-like object that supports arbitrary, even unhashable keys.
+    The cost is worst-case performance: implemented as a list rather than a hashtable.
+    Iteration retains insertion order.
+    Not thread-safe.
     '''
 
     def __init__(self, entries=None, **kwargs):
@@ -17,14 +24,16 @@ class Map:
 
     def dict(self, strict=False):
         '''
-        If cannot be converted to a dict (due to an unhashable key) will
-        return self if strict is False, otherwise will raise a TypeError
+        Attempt to convert to a dict.
+        If cannot be converted (due to an unhashable key) will return self
+        if strict is False, otherwise will raise a TypeError
         '''
         dict_ = {}
         for key, value in self.entries:
             try:
                 dict_[key] = value
             except TypeError:
+                # Unhashable key, so cannot be converted to a dict
                 if strict:
                     raise
                 else:
@@ -35,18 +44,13 @@ class Map:
     # See: https://docs.python.org/3/library/stdtypes.html#dict
 
     def keys(self):
-        # TODO: https://docs.python.org/3/library/stdtypes.html#dict-views
-        for key, _ in self.entries:
-            yield key
+        return _MapKeys(self)
 
     def values(self):
-        # TODO: https://docs.python.org/3/library/stdtypes.html#dict-views
-        for _, value in self.entries:
-            yield value
+        return _MapValues(self)
 
     def items(self):
-        # TODO: https://docs.python.org/3/library/stdtypes.html#dict-views
-        return iter(self.entries)
+        return _MapItems(self)
 
     def get(self, key, default=None):
         for key_, value in self.entries:
@@ -71,7 +75,7 @@ class Map:
         for key_, value in self.entries:
             if key_ == key:
                 return value
-        self.entries.append((key, value))
+        self.entries.append((key, default))
         return default
 
     def update(self, other=None, **kwargs):
@@ -87,6 +91,8 @@ class Map:
 
         for key, value in kwargs.items():
             self.__setitem__(key, value)
+        
+        return None
 
     def clear(self):
         self.entries = []
@@ -102,7 +108,7 @@ class Map:
         return len(self.entries)
 
     def __contains__(self, key):
-        for key_, value in self.entries:
+        for key_, _ in self.entries:
             if key_ == key:
                 return True
         return False
@@ -130,6 +136,10 @@ class Map:
         for key, _ in self.entries:
             yield key
 
+    def __reversed__(self):
+        for key, _ in reversed(self.entries):
+            yield key
+
     def __or__(self, other): # self | other
         copy = self.copy()
         copy.update(other)
@@ -145,24 +155,74 @@ class Map:
         return self
 
     def __eq__(self, other):
-        if not isinstance(other, Map):
+        '''
+        Equality does not take insertion order into consideration.
+        '''
+        if not isinstance(other, collections.Mapping):
+            return False
+        if len(self.entries) != len(other):
             return False
         for key, value in self.entries:
             try:
-                value_ = other.__getitem__(key)
-            except KeyError:
-                return False
-            if value != value_:
-                return False
-        for key, value in other.entries:
-            try:
-                self.__getitem__(key)
+                if value != other[key]:
+                    return False
             except KeyError:
                 return False
         return True
 
     def __str__(self):
-        return str(self.entries)
+        return self.__repr__()
 
     def __repr__(self):
-        return repr(self.entries)
+        return '{' + ', '.join([repr(k) + ': ' + repr(v) for k, v in self.entries]) + '}'
+
+collections.MutableMapping.register(Map)
+
+# Views
+# See: https://docs.python.org/3/library/stdtypes.html#dict-views
+
+class _MapKeys(collections.KeysView):
+    def __contains__(self, key):
+        for key_, _ in self._mapping.entries:
+            if key_ == key:
+                return True
+        return False
+
+    def __iter__(self):
+        for key, _ in self._mapping.entries:
+            yield key
+
+    def __reversed__(self):
+        for key, _ in reversed(self._mapping.entries):
+            yield key
+
+collections.KeysView.register(_MapKeys)
+
+class _MapValues(collections.ValuesView):
+    def __contains__(self, value):
+        for _, value_ in self._mapping.entries:
+            if value_ == value:
+                return True
+        return False
+
+    def __iter__(self):
+        for _, value in self._mapping.entries:
+            yield value
+
+    def __reversed__(self):
+        for _, value in reversed(self._mapping.entries):
+            yield value
+
+collections.ValuesView.register(_MapValues)
+
+class _MapItems(collections.ItemsView):
+    def __contains__(self, entry):
+        return entry in self._mapping.entries
+
+    def __iter__(self):
+        yield from self._mapping.entries
+
+    def __reversed__(self):
+        yield from reversed(self._mapping.entries)
+
+collections.ItemsView.register(_MapItems)

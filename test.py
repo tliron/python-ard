@@ -31,6 +31,7 @@ show({
 
 # Dict with an unhashable key
 show(ard.Map([
+    ('simple', 100),
     ({'complex': 'key'}, 200),
 ]))
 
