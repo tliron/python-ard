@@ -11,17 +11,9 @@ class Map:
     Not optimized for performance.
     '''
 
-    def __init__(self, entries=None):
+    def __init__(self, entries=None, **kwargs):
         self.entries = []
-        if isinstance(entries, list) or isinstance(entries, tuple):
-            for key, value in entries:
-                self.__setitem__(key, value)
-        elif isinstance(entries, dict):
-            for key, value in entries.items():
-                self.__setitem__(key, value)
-        elif isinstance(entries, Map):
-            for key, value in entries.entries:
-                self.__setitem__(key, value)
+        self.update(entries, **kwargs)
 
     def dict(self, strict=False):
         '''
@@ -40,6 +32,7 @@ class Map:
         return dict_
 
     # Mimic the "dict" contract
+    # See: https://docs.python.org/3/library/stdtypes.html#dict
 
     def keys(self):
         # TODO: https://docs.python.org/3/library/stdtypes.html#dict-views
@@ -55,29 +48,76 @@ class Map:
         # TODO: https://docs.python.org/3/library/stdtypes.html#dict-views
         return iter(self.entries)
 
-    def clear(self):
-        self.entries = []
-
-    def copy(self):
-        return Map(self.entries)
-
     def get(self, key, default=None):
         for key_, value in self.entries:
             if key_ == key:
                 return value
         return default
 
+    def pop(self, key, **kwargs):
+        for index, (key_, value) in enumerate(self.entries):
+            if key_ == key:
+                del self.entries[index]
+                return value
+        try:
+            return kwargs['default']
+        except KeyError:
+            raise KeyError(key)
+
+    def popitem(self):
+        return self.entries.pop()
+
+    def setdefault(self, key, default=None):
+        for key_, value in self.entries:
+            if key_ == key:
+                return value
+        self.entries.append((key, value))
+        return default
+
+    def update(self, other=None, **kwargs):
+        if other is not None:
+            try:
+                # List of tuples
+                for key, value in other:
+                    self.__setitem__(key, value)
+            except TypeError:
+                # Dict-like object
+                for key in other:
+                    self.__setitem__(key, other[key])
+
+        for key, value in kwargs.items():
+            self.__setitem__(key, value)
+
+    def clear(self):
+        self.entries = []
+
+    def copy(self):
+        copy = Map()
+        copy.entries = list(self.entries)
+        return copy
+
+    # See: https://docs.python.org/3/reference/datamodel.html
+
     def __len__(self):
         return len(self.entries)
+
+    def __contains__(self, key):
+        for key_, value in self.entries:
+            if key_ == key:
+                return True
+        return False
 
     def __getitem__(self, key):
         for key_, value in self.entries:
             if key_ == key:
                 return value
-        raise KeyError()
+        raise KeyError(key)
 
     def __setitem__(self, key, value):
-        self.__delitem__(key)
+        for index, entry in enumerate(self.entries):
+            if entry[0] == key:
+                entry[1] = value
+                return
         self.entries.append((key, value))
 
     def __delitem__(self, key):
@@ -89,6 +129,20 @@ class Map:
     def __iter__(self):
         for key, _ in self.entries:
             yield key
+
+    def __or__(self, other): # self | other
+        copy = self.copy()
+        copy.update(other)
+        return copy
+
+    def __ror__(self, other): # other | self
+        other = Map(other)
+        other.update(self)
+        return other
+
+    def __ior__(self, other): # self |= other
+        self.update(other)
+        return self
 
     def __eq__(self, other):
         if not isinstance(other, Map):
