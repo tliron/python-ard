@@ -24,4 +24,4 @@ setuptools.setup(
         'License :: OSI Approved :: Apache Software License'],
 
     packages=['ard'],
-    install_requires=['ruamel.yaml'])
+    install_requires=['ruamel.yaml', 'cbor2'])

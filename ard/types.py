@@ -1,14 +1,16 @@
 
-import collections
+import collections.abc
 
 __all__ = (
     'UInteger',
     'Map')
 
+
 class UInteger(int):
     '''
     An int that will be marked as unsigned where necessary.
     '''
+
 
 class Map(collections.abc.MutableMapping):
     '''
@@ -107,7 +109,7 @@ class Map(collections.abc.MutableMapping):
     # See: https://docs.python.org/3/reference/datamodel.html
 
     def __hash__(self):
-        return hash(self.entries)
+        return hash(tuple(self.entries))
 
     def __len__(self):
         return len(self.entries)
@@ -171,7 +173,7 @@ class Map(collections.abc.MutableMapping):
             try:
                 if value != other[key]:
                     return False
-            except KeyError:
+            except (KeyError, TypeError):
                 return False
         return True
 

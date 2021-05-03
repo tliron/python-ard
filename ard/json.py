@@ -2,6 +2,9 @@
 import json
 from .types import *
 
+__all__ = ('Encoder',)
+
+
 class Encoder(json.JSONEncoder):
     '''
     A JSONEncoder that supports the Map class.

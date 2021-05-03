@@ -15,6 +15,7 @@ CJSON_UINTEGER_CODE = '$ard.uinteger'
 CJSON_BYTES_CODE = '$ard.bytes'
 CJSON_MAP_CODE = '$ard.map'
 
+
 def convert_to(value):
     value, _ = _convert_to(value)
     return value
@@ -131,7 +132,7 @@ def _convert_from(value):
         if converted:
             return tuple(list_), True
 
-    elif isinstance(value, (dict, Map)):
+    elif isinstance(value, collections.abc.Mapping):
         if len(value) == 1:
             # Check for codes
             try:

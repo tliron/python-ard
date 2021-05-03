@@ -2,7 +2,10 @@
 import ruamel.yaml
 from .types import *
 
-__all__ = ('SafeConstructor',)
+__all__ = (
+    'SafeConstructor',
+    'represent_uinteger')
+
 
 class SafeConstructor(ruamel.yaml.constructor.SafeConstructor):
     '''
@@ -29,3 +32,10 @@ class RoundTripConstructor(ruamel.yaml.constructor.RoundTripConstructor):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.yaml_base_dict_type = Map
+
+
+def represent_uinteger(representer, data):
+    return representer.represent_int(data)
+
+def represent_map(representer, data):
+    return representer.represent_dict(data)
