@@ -40,6 +40,8 @@ class Map(collections.abc.MutableMapping):
                     return self
         return dict_
 
+    # JSON serializable
+
     # Mimic the "dict" contract
     # See: https://docs.python.org/3/library/stdtypes.html#dict
 
@@ -84,7 +86,7 @@ class Map(collections.abc.MutableMapping):
                 # List of tuples
                 for key, value in other:
                     self.__setitem__(key, value)
-            except TypeError:
+            except ValueError:
                 # Dict-like object
                 for key in other:
                     self.__setitem__(key, other[key])
@@ -103,6 +105,9 @@ class Map(collections.abc.MutableMapping):
         return copy
 
     # See: https://docs.python.org/3/reference/datamodel.html
+
+    def __hash__(self):
+        return hash(self.entries)
 
     def __len__(self):
         return len(self.entries)
