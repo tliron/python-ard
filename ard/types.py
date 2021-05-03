@@ -10,7 +10,7 @@ class UInteger(int):
     An int that will be marked as unsigned where necessary.
     '''
 
-class Map(collections.MutableMapping):
+class Map(collections.abc.MutableMapping):
     '''
     A dict-like object that supports arbitrary, even unhashable keys.
     The cost is worst-case performance: implemented as a list rather than a hashtable.
@@ -158,7 +158,7 @@ class Map(collections.MutableMapping):
         '''
         Equality does not take insertion order into consideration.
         '''
-        if not isinstance(other, collections.Mapping):
+        if not isinstance(other, collections.abc.Mapping):
             return False
         if len(self.entries) != len(other):
             return False
@@ -174,14 +174,14 @@ class Map(collections.MutableMapping):
         return self.__repr__()
 
     def __repr__(self):
-        return '{' + ', '.join([repr(k) + ': ' + repr(v) for k, v in self.entries]) + '}'
+        return '{' + ', '.join((repr(k) + ': ' + repr(v) for k, v in self.entries)) + '}'
 
-collections.MutableMapping.register(Map)
+collections.abc.MutableMapping.register(Map)
 
 # Views
 # See: https://docs.python.org/3/library/stdtypes.html#dict-views
 
-class _MapKeys(collections.KeysView):
+class _MapKeys(collections.abc.KeysView):
     def __contains__(self, key):
         for key_, _ in self._mapping.entries:
             if key_ == key:
@@ -196,9 +196,9 @@ class _MapKeys(collections.KeysView):
         for key, _ in reversed(self._mapping.entries):
             yield key
 
-collections.KeysView.register(_MapKeys)
+collections.abc.KeysView.register(_MapKeys)
 
-class _MapValues(collections.ValuesView):
+class _MapValues(collections.abc.ValuesView):
     def __contains__(self, value):
         for _, value_ in self._mapping.entries:
             if value_ == value:
@@ -213,9 +213,9 @@ class _MapValues(collections.ValuesView):
         for _, value in reversed(self._mapping.entries):
             yield value
 
-collections.ValuesView.register(_MapValues)
+collections.abc.ValuesView.register(_MapValues)
 
-class _MapItems(collections.ItemsView):
+class _MapItems(collections.abc.ItemsView):
     def __contains__(self, entry):
         return entry in self._mapping.entries
 
@@ -225,4 +225,4 @@ class _MapItems(collections.ItemsView):
     def __reversed__(self):
         yield from reversed(self._mapping.entries)
 
-collections.ItemsView.register(_MapItems)
+collections.abc.ItemsView.register(_MapItems)
