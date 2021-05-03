@@ -1,8 +1,16 @@
 #!/usr/bin/env python3
 
-import unittest, json, sys, ard
-from ruamel.yaml import YAML
-yaml=YAML(typ='safe')
+import unittest, ard, json, ruamel.yaml, sys
+
+
+yaml=ruamel.yaml.YAML(typ='safe')
+yaml.Constructor = ard.yaml.SafeConstructor
+
+
+class MyConstructor(ruamel.yaml.constructor.SafeConstructor):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.yaml_base_dict_type = ard.Map
 
 class TestCJSON(unittest.TestCase):
     def test_primitives(self):
@@ -34,14 +42,15 @@ class TestCJSON(unittest.TestCase):
             float: 12.34
         '''))
 
-    def _test_yaml_unhashable_key(self):
+    def test_yaml_unhashable_key(self):
+        #yaml_base_dict_type = ard.Map
         self.roundtrip(yaml.load('''
         {complex: key}: value
         '''))
 
     def roundtrip(self, data):
-        cjson = ard.to_cjson(data)
-        rt = ard.from_cjson(cjson)
+        cjson = ard.cjson.convert_to(data)
+        rt = ard.cjson.convert_from(cjson)
 
         print()
         print('Original:', data)
