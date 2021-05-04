@@ -10,6 +10,7 @@ __all__ = (
     'read_yaml',
     'read_json',
     'read_cjson',
+    'read_xml',
     'read_cbor')
 
 
@@ -20,6 +21,8 @@ def read(reader, format='yaml'):
         return read_json(reader)
     elif format == 'cjson':
         return read_cjson(reader)
+    elif format == 'xml':
+        return read_xml(reader)
     elif format == 'cbor':
         return read_cbor(reader)
     else:
@@ -36,6 +39,10 @@ def read_json(reader):
 def read_cjson(reader):
     cjson = read_json(reader)
     return convert_from_cjson(cjson)
+
+def read_xml(reader):
+    # TODO
+    raise NotImplementedError()
 
 def read_cbor(reader):
     decoder = cbor2.CBORDecoder(reader)

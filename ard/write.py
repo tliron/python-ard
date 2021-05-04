@@ -11,6 +11,7 @@ __all__ = (
     'write_yaml',
     'write_json',
     'write_cjson',
+    'write_xml',
     'write_cbor')
 
 
@@ -21,6 +22,8 @@ def write(value, writer, format='yaml', indent='', strict=False):
         write_json(value, writer, indent)
     elif format == 'cjson':
         write_cjson(value, writer, indent)
+    elif format == 'xml':
+        write_xml(value, writer, indent)
     elif format == 'cbor':
         write_cbor(value, writer)
     else:
@@ -42,6 +45,10 @@ def write_json(value, writer, indent=''):
 def write_cjson(value, writer, indent=''):
     value = convert_to_cjson(value)
     write_json(value, writer, indent)
+
+def write_xml(value, writer, indent=''):
+    # TODO
+    raise NotImplementedError()
 
 def write_cbor(value, writer):
     encoder = cbor2.CBOREncoder(writer, default=cbor_encoder_default)

@@ -7,6 +7,7 @@ __all__ = (
     'decode_yaml',
     'decode_json',
     'decode_cjson',
+    'decode_xml',
     'decode_cbor')
 
 
@@ -17,6 +18,8 @@ def decode(code, format='yaml'):
         return decode_json(code)
     elif format == 'cjson':
         return decode_cjson(code)
+    elif format == 'xml':
+        return decode_xml(code)
     elif format == 'cbor':
         return decode_cbor(code)
     else:
@@ -30,6 +33,9 @@ def decode_json(code):
 
 def decode_cjson(code):
     return read_cjson(io.StringIO(code))
+
+def decode_xml(code):
+    return read_xml(io.StringIO(code))
 
 def decode_cbor(code):
     bytes_ = binascii.a2b_base64(code)

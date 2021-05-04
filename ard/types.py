@@ -88,7 +88,7 @@ class Map(collections.abc.MutableMapping):
                 # List of tuples
                 for key, value in other:
                     self.__setitem__(key, value)
-            except ValueError:
+            except (ValueError, TypeError):
                 # Dict-like object
                 for key in other:
                     self.__setitem__(key, other[key])

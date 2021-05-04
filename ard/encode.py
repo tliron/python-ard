@@ -7,6 +7,7 @@ __all__ = (
     'encode_yaml',
     'encode_json',
     'encode_cjson',
+    'encode_xml',
     'encode_cbor')
 
 
@@ -16,7 +17,9 @@ def encode(value, format='yaml', indent='', strict=False):
     elif format == 'json':
         return encode_json(value, indent)
     elif format == 'cjson':
-        return encode_cjson(value)
+        return encode_cjson(value, indent)
+    elif format == 'xml':
+        return encode_xml(value, indent)
     elif format == 'cbor':
         return encode_cbor(value)
     else:
@@ -35,6 +38,11 @@ def encode_json(value, indent=''):
 def encode_cjson(value, indent=''):
     buffer = io.StringIO()
     write_cjson(value, buffer, indent)
+    return buffer.getvalue()
+
+def encode_xml(value, indent=''):
+    buffer = io.StringIO()
+    write_xml(value, buffer, indent)
     return buffer.getvalue()
 
 def encode_cbor(value):
