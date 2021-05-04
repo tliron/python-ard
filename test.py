@@ -36,17 +36,6 @@ json_simple = '''
 {"hello": "world"}
 '''
 
-cjson_simple = '''
-{
-  "$ard.map": [
-    {
-      "key": {"complex": "key"},
-      "value": "value"
-    }
-  ]
-}
-'''
-
 
 class Write(unittest.TestCase):
     def test_primitives(self):
