@@ -7,7 +7,7 @@ See the description of Agnostic Raw Data (ARD) in the
 The latest stable release of this library is
 [available on PyPi](https://pypi.org/project/ard/):
 
-    pip install ard
+    python -m pip install ard
 
 This library has three main features:
 

@@ -15,9 +15,9 @@ rm --force --recursive dist
 mkdir --parents dist
 
 rm --recursive --force dist/env
-python3 -m venv dist/env
+python3 -m venv --upgrade-deps dist/env
 . dist/env/bin/activate
-pip install --upgrade pip
+python -m pip install wheel
 
 if [ "$1" == -p ]; then
 
@@ -26,7 +26,7 @@ if [ "$1" == -p ]; then
     SDIST=dist/ard-$VERSION.tar.gz
     BDIST=dist/ard-$VERSION-py3-none-any.whl
 
-    pip install wheel twine
+    python -m pip install twine
 
     ./setup.py sdist bdist_wheel
 
@@ -44,6 +44,6 @@ else
 
     # Install
 
-    pip install .
+    python -m pip install .
 
 fi
