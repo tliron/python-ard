@@ -15,4 +15,4 @@ class Encoder(json.JSONEncoder):
                 return obj.dict(strict=True, json=True)
             except TypeError:
                 return obj._items
-        return json.JSONEncoder.default(self, obj)
+        return super().default(self, obj)

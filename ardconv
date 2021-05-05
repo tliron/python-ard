@@ -20,6 +20,12 @@ def main():
         else:
             input = sys.stdin
 
+    try:
+        value = ard.read(input, args.input_format)
+    finally:
+        if args.input is not None:
+            input.close()
+
     if args.output is not None:
         output = open(args.output, 'w')
     else:
@@ -28,8 +34,11 @@ def main():
         else:
             output = sys.stdout
 
-    value = ard.read(input, args.input_format)
-    ard.write(value, output, args.output_format, indent=' ' * args.indent)
+    try:
+        ard.write(value, output, args.output_format, indent=' ' * args.indent)
+    finally:
+        if args.output is not None:
+            output.close()
 
 
 if __name__ == '__main__':

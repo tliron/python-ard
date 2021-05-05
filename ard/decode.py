@@ -1,6 +1,7 @@
 
 import io, binascii
 from .read import *
+from .exceptions import *
 
 __all__ = (
     'decode',
@@ -23,7 +24,7 @@ def decode(code, format='yaml'):
     elif format == 'cbor':
         return decode_cbor(code)
     else:
-        raise Exception('unsupported format: ' + format)
+        raise ARDException('unsupported format: ' + format)
 
 def decode_yaml(code):
     return read_yaml(io.StringIO(code))

@@ -1,5 +1,6 @@
 
 import ruamel.yaml, json, cbor2
+from .exceptions import *
 from .yaml import SafeConstructor as YAMLSafeConstructor
 from .json import Encoder as JSONEncoder
 from .cjson import convert_from as convert_from_cjson
@@ -26,24 +27,36 @@ def read(reader, format='yaml'):
     elif format == 'cbor':
         return read_cbor(reader)
     else:
-        raise Exception('unsupported format: ' + format)
+        raise ARDException('unsupported format: ' + format)
 
 def read_yaml(reader):
-    yaml=ruamel.yaml.YAML(typ='safe')
-    yaml.Constructor = YAMLSafeConstructor
-    return yaml.load(reader)
+    try:
+        yaml=ruamel.yaml.YAML(typ='safe')
+        yaml.Constructor = YAMLSafeConstructor
+        return yaml.load(reader)
+    except Exception as e:
+        raise DecodeError('yaml') from e
 
 def read_json(reader):
-    return json.load(reader)
+    try:
+        return json.load(reader)
+    except Exception as e:
+        raise DecodeError('json') from e
 
 def read_cjson(reader):
     cjson = read_json(reader)
-    return convert_from_cjson(cjson)
+    try:
+        return convert_from_cjson(cjson)
+    except Exception as e:
+        raise DecodeError('cjson') from e
 
 def read_xml(reader):
     # TODO
     raise NotImplementedError()
 
 def read_cbor(reader):
-    decoder = cbor2.CBORDecoder(reader)
-    return convert_frozendicts_to_maps(decoder.decode())
+    try:
+        decoder = cbor2.CBORDecoder(reader)
+        return convert_frozendicts_to_maps(decoder.decode())
+    except Exception as e:
+        raise DecodeError('cbor') from e

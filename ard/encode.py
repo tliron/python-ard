@@ -1,6 +1,7 @@
 
 import io, binascii
 from .write import *
+from .exceptions import *
 
 __all__ = (
     'encode',
@@ -23,7 +24,7 @@ def encode(value, format='yaml', indent='', strict=False):
     elif format == 'cbor':
         return encode_cbor(value)
     else:
-        raise Exception('unsupported format: ' + format)
+        raise ARDException('unsupported format: ' + format)
 
 def encode_yaml(value, indent='', strict=False):
     buffer = io.StringIO()
