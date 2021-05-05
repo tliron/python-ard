@@ -19,10 +19,11 @@ setuptools.setup(
     author_email='tal.liron@gmail.com',
     url='https://github.com/tliron/python-ard',
     download_url='https://github.com/tliron/python-ard/releases',
-    classifiers=[
+    classifiers=(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License'],
+        'License :: OSI Approved :: Apache Software License'),
 
-    packages=['ard'],
-    install_requires=['ruamel.yaml', 'cbor2'])
+    packages=('ard',),
+    scripts=('ardconv',),
+    install_requires=('ruamel.yaml', 'cbor2'))

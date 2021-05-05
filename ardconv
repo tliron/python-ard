@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+
+import argparse, ard, sys
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Convert ARD between transmission formats')
+    parser.add_argument('input', type=str, nargs='?', help='input file (stdin if not provided)')
+    parser.add_argument('output', type=str, nargs='?', help='output file (stdout if not provided)')
+    parser.add_argument('--input', '-i', dest='input_format', type=str, choices=('yaml', 'json', 'cjson', 'xml', 'cbor'), default='yaml', help='input format')
+    parser.add_argument('--output', '-o', dest='output_format', type=str, choices=('yaml', 'json', 'cjson', 'xml', 'cbor'), default='yaml', help='output format')
+    parser.add_argument('--indent', '-n', type=int, default=2, help='output indentation size')
+    args = parser.parse_args()
+
+    if args.input is not None:
+        input = open(args.input, 'r')
+    else:
+        if args.input_format == 'cbor':
+            input = sys.stdin.buffer
+        else:
+            input = sys.stdin
+
+    if args.output is not None:
+        output = open(args.output, 'w')
+    else:
+        if args.output_format == 'cbor':
+            output = sys.stdout.buffer
+        else:
+            output = sys.stdout
+
+    value = ard.read(input, args.input_format)
+    ard.write(value, output, args.output_format, indent=' ' * args.indent)
+
+
+if __name__ == '__main__':
+    main()

@@ -11,5 +11,8 @@ class Encoder(json.JSONEncoder):
     '''
     def default(self, obj):
         if isinstance(obj, Map):
-            return obj.entries
+            try:
+                return obj.dict(strict=True, json=True)
+            except TypeError:
+                return obj._items
         return json.JSONEncoder.default(self, obj)

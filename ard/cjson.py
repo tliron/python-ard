@@ -21,27 +21,14 @@ def convert_to(value):
     return value
 
 def _convert_to(value):
-    if isinstance(value, list):
-        converted = False
-        list_ = []
-        for value_ in value:
-            value_, value_converted = _convert_to(value_)
-            if value_converted:
-                converted = True
-            list_.append(value_)
-        if converted:
-            return list_, True
+    if isinstance(value, UInteger): # must be before checking for 'int'
+        return {CJSON_UINTEGER_CODE: str(value)}, True
 
-    elif isinstance(value, tuple):
-        converted = False
-        list_ = []
-        for value_ in value:
-            value_, value_converted = _convert_to(value_)
-            if value_converted:
-                converted = True
-            list_.append(value_)
-        if converted:
-            return tuple(list_), True
+    elif isinstance(value, int):
+        return {CJSON_INTEGER_CODE: str(value)}, True
+
+    elif isinstance(value, bytes):
+        return {CJSON_BYTES_CODE: binascii.b2a_base64(value).decode()}, True
 
     elif isinstance(value, collections.abc.Mapping):
         if len(value) == 1:
@@ -94,14 +81,19 @@ def _convert_to(value):
             # Maps are not JSON-serializable, so we need the conversion
             return dict_, True
 
-    elif isinstance(value, UInteger): # must be before checking for 'int'
-        return {CJSON_UINTEGER_CODE: str(value)}, True
-
-    elif isinstance(value, int):
-        return {CJSON_INTEGER_CODE: str(value)}, True
-
-    elif isinstance(value, bytes):
-        return {CJSON_BYTES_CODE: binascii.b2a_base64(value).decode()}, True
+    elif isinstance(value, (list, tuple)):
+        converted = False
+        list_ = []
+        for value_ in value:
+            value_, value_converted = _convert_to(value_)
+            if value_converted:
+                converted = True
+            list_.append(value_)
+        if converted:
+            if isinstance(value, tuple):
+                return list_, True
+            else:
+                return tuple(list_), True
 
     return value, False
 
@@ -110,29 +102,7 @@ def convert_from(value):
     return value
 
 def _convert_from(value):
-    if isinstance(value, list):
-        converted = False
-        list_ = []
-        for value_ in value:
-            value_, value_converted = _convert_from(value_)
-            if value_converted:
-                converted = True
-            list_.append(value_)
-        if converted:
-            return list_, True
-
-    elif isinstance(value, tuple):
-        converted = False
-        list_ = []
-        for value_ in value:
-            value_, value_converted = _convert_from(value_)
-            if value_converted:
-                converted = True
-            list_.append(value_)
-        if converted:
-            return tuple(list_), True
-
-    elif isinstance(value, collections.abc.Mapping):
+    if isinstance(value, collections.abc.Mapping):
         if len(value) == 1:
             # Check for codes
             try:
@@ -171,5 +141,19 @@ def _convert_from(value):
             map_[key] = value_
         if converted:
             return map_.dict(), True
+
+    elif isinstance(value, (list, tuple)):
+        converted = False
+        list_ = []
+        for value_ in value:
+            value_, value_converted = _convert_from(value_)
+            if value_converted:
+                converted = True
+            list_.append(value_)
+        if converted:
+            if isinstance(value, tuple):
+                return list_, True
+            else:
+                return tuple(list_), True
 
     return value, False

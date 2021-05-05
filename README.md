@@ -12,13 +12,14 @@ The latest stable release of this library is
 This library has three main features:
 
 1. Allows you to easily transmit ARD in several formats: YAML, JSON, XML, and
-   CBOR. Supports both encoding and decoding.
+   CBOR. Supports both encoding and decoding. Included is an `ardconv` CLI
+   tool that can convert between all formats.
 2. Enable support for decoding YAML with complex keys. As it stands, the
    otherwise excellent [ruamel.yaml](https://pypi.org/project/ruamel.yaml/)
-   library will choke when reading complex keys.
+   library will choke on complex keys.
 3. Support for ARD-compatible extensions to JSON (CJSON). This allows for
    round-tripping ARD through JSON without losing type information, including
-   support for maps with complex keys.
+   support for integers, byte arrays, and maps with non-string keys.
 
 Python's `dict` does not support un-hashable keys, making it difficult to work
 with complex keys. For this reason we provide the `ard.Map` class, which does
