@@ -8,8 +8,7 @@ HERE=$(dirname "$(readlink --canonicalize "$BASH_SOURCE")")
 cd "$HERE"
 
 VERSION=$(git describe --tags --always)
-echo -n "$VERSION" > VERSION
-#echo "__version__ = '$VERSION'" > ard/__init__.py
+echo "__version__ = \"$VERSION\"" > "$HERE/ard/version.py"
 
 rm --force --recursive dist
 mkdir --parents dist
@@ -19,31 +18,43 @@ python3 -m venv --upgrade-deps dist/env
 . dist/env/bin/activate
 python -m pip install wheel
 
-if [ "$1" == -p ]; then
+if [ "$1" == -e ]; then
 
-    # Publish
+    # Install editable
+    python -m pip install --editable .
+
+else
+    # Build
+    ./setup.py sdist bdist_wheel
 
     SDIST=dist/ard-$VERSION.tar.gz
     BDIST=dist/ard-$VERSION-py3-none-any.whl
 
-    python -m pip install twine
+    if [ "$1" == -s ]; then
 
-    ./setup.py sdist bdist_wheel
+        # Install sdist
+        python -m pip install "$SDIST"
 
-    gpg --detach-sign --armor --yes "$SDIST"
-    gpg --detach-sign --armor --yes "$BDIST"
+    elif [ "$1" == -b ]; then
 
-    # Upload to PyPI
-    twine upload \
-        "$SDIST" \
-        "$SDIST.asc" \
-        "$BDIST" \
-        "$BDIST.asc"
+        # Install bdist
+        python -m pip install "$BDIST"
 
-else
+    elif [ "$1" == -p ]; then
 
-    # Install
+        # Publish
 
-    python -m pip install .
+        python -m pip install twine
 
+        gpg --detach-sign --armor --yes "$SDIST"
+        gpg --detach-sign --armor --yes "$BDIST"
+
+        # Upload to PyPI
+        twine upload \
+            "$SDIST" \
+            "$SDIST.asc" \
+            "$BDIST" \
+            "$BDIST.asc"
+
+    fi
 fi

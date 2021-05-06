@@ -3,6 +3,4 @@
 __pycache__/
 *.egg-info/
 build/
-
-VERSION
 dist/
