@@ -2,8 +2,10 @@
 
 import os.path, setuptools
 
-with open(os.path.join(os.path.dirname(__file__), 'VERSION')) as f:
-    version = f.read()
+with open(os.path.join(os.path.dirname(__file__), 'ard', 'version.py')) as f:
+    globals_ = {}
+    exec(f.read(), globals_)
+    version = globals_['__version__']
 
 with open(os.path.join(os.path.dirname(__file__), 'README.md')) as f:
     readme = f.read()

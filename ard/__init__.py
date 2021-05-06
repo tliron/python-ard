@@ -1,4 +1,9 @@
 
+try:
+    from .version import __version__
+except ModuleNotFoundError:
+    pass
+
 from .types import *
 from .exceptions import *
 from .read import *
