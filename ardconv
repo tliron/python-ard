@@ -11,39 +11,56 @@ def main():
     parser.add_argument('--input', '-i', dest='input_format', type=str, choices=('yaml', 'json', 'cjson', 'xml', 'cbor'), default='yaml', help='input format')
     parser.add_argument('--output', '-o', dest='output_format', type=str, choices=('yaml', 'json', 'cjson', 'xml', 'cbor'), default='yaml', help='output format')
     parser.add_argument('--indent', '-n', type=int, default=2, help='output indentation size')
+    parser.add_argument('--verbose', '-v', action='store_true', help='verbose errors')
     args = parser.parse_args()
 
     if args.version:
         print(ard.__version__)
         sys.exit(0)
 
-    if args.input is not None:
-        input = open(args.input, 'r')
-    else:
-        if args.input_format == 'cbor':
-            input = sys.stdin.buffer
-        else:
-            input = sys.stdin
-
     try:
-        value = ard.read(input, args.input_format)
-    finally:
+
         if args.input is not None:
-            input.close()
-
-    if args.output is not None:
-        output = open(args.output, 'w')
-    else:
-        if args.output_format == 'cbor':
-            output = sys.stdout.buffer
+            input = open(args.input, 'r')
         else:
-            output = sys.stdout
+            if args.input_format == 'cbor':
+                input = sys.stdin.buffer
+            else:
+                input = sys.stdin
 
-    try:
-        ard.write(value, output, args.output_format, indent=' ' * args.indent)
-    finally:
+        try:
+            value = ard.read(input, args.input_format)
+        finally:
+            if args.input is not None:
+                input.close()
+
         if args.output is not None:
-            output.close()
+            output = open(args.output, 'w')
+        else:
+            if args.output_format == 'cbor':
+                output = sys.stdout.buffer
+            else:
+                output = sys.stdout
+
+        try:
+            ard.write(value, output, args.output_format, indent=' ' * args.indent)
+        finally:
+            if args.output is not None:
+                output.close()
+
+    except KeyboardInterrupt:
+        sys.exit(130)
+
+    except BaseException as e:
+        if args.verbose:
+            raise e
+        else:
+            m = str(e)
+            if m:
+                m = ': ' + m
+            m = type(e).__name__ + m
+            print(m, file=sys.stderr)
+            sys.exit(1)
 
 
 if __name__ == '__main__':

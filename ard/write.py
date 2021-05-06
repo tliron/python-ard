@@ -58,7 +58,7 @@ def write_cjson(value, writer, indent=''):
 
 def write_xml(value, writer, indent=''):
     # TODO
-    raise NotImplementedError()
+    raise NotImplementedError('xml')
 
 def write_cbor(value, writer):
     try:

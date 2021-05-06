@@ -52,7 +52,7 @@ def read_cjson(stream):
 
 def read_xml(stream):
     # TODO
-    raise NotImplementedError()
+    raise NotImplementedError('xml')
 
 def read_cbor(stream):
     try:
