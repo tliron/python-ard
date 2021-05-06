@@ -15,48 +15,48 @@ __all__ = (
     'read_cbor')
 
 
-def read(reader, format='yaml'):
+def read(stream, format='yaml'):
     if (format == 'yaml') or (format == ''):
-        return read_yaml(reader)
+        return read_yaml(stream)
     elif format == 'json':
-        return read_json(reader)
+        return read_json(stream)
     elif format == 'cjson':
-        return read_cjson(reader)
+        return read_cjson(stream)
     elif format == 'xml':
-        return read_xml(reader)
+        return read_xml(stream)
     elif format == 'cbor':
-        return read_cbor(reader)
+        return read_cbor(stream)
     else:
         raise ARDException('unsupported format: ' + format)
 
-def read_yaml(reader):
+def read_yaml(stream):
     try:
         yaml=ruamel.yaml.YAML(typ='safe')
         yaml.Constructor = YAMLSafeConstructor
-        return yaml.load(reader)
+        return yaml.load(stream)
     except Exception as e:
         raise DecodeError('yaml') from e
 
-def read_json(reader):
+def read_json(stream):
     try:
-        return json.load(reader)
+        return json.load(stream)
     except Exception as e:
         raise DecodeError('json') from e
 
-def read_cjson(reader):
-    cjson = read_json(reader)
+def read_cjson(stream):
+    cjson = read_json(stream)
     try:
         return convert_from_cjson(cjson)
     except Exception as e:
         raise DecodeError('cjson') from e
 
-def read_xml(reader):
+def read_xml(stream):
     # TODO
     raise NotImplementedError()
 
-def read_cbor(reader):
+def read_cbor(stream):
     try:
-        decoder = cbor2.CBORDecoder(reader)
+        decoder = cbor2.CBORDecoder(stream)
         return convert_frozendicts_to_maps(decoder.decode())
     except Exception as e:
         raise DecodeError('cbor') from e
