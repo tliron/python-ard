@@ -103,14 +103,14 @@ class Map(collections.abc.MutableMapping):
         if not self._mutable:
             raise TypeError('this Map is immutable')
         if other is not None:
-            try:
-                # List of tuples
-                for key, value in other:
-                    self.__setitem__(key, value)
-            except (ValueError, TypeError):
+            if isinstance(other, collections.abc.Mapping):
                 # Dict-like object
                 for key in other:
                     self.__setitem__(key, other[key])
+            else:
+                # List of tuples
+                for key, value in other:
+                    self.__setitem__(key, value)
 
         for key, value in kwargs.items():
             self.__setitem__(key, value)

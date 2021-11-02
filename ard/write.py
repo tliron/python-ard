@@ -34,6 +34,7 @@ def write_yaml(value, writer, indent='', strict=False):
     try:
         yaml=ruamel.yaml.YAML(typ='safe')
         yaml.indent = len(indent)
+        yaml.default_flow_style = False
         yaml.representer.add_representer(UInteger, represent_uinteger)
         yaml.representer.add_representer(Map, represent_map)
         yaml.dump(value, writer)
