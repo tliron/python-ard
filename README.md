@@ -1,8 +1,7 @@
 Agnostic Raw Data (ARD) for Python
 ==================================
 
-See the description of Agnostic Raw Data (ARD) in the
-[Go ARD library](https://github.com/tliron/go-ard).
+What is ARD? See [here](https://github.com/tliron/go-ard/blob/main/ARD.md).
 
 The latest stable release of this library is
 [available on PyPi](https://pypi.org/project/ard/):

@@ -1,17 +1,17 @@
 
 __all__ = (
-    'ARDException',
-    'EncodeError',
-    'DecodeError')
+  'ARDException',
+  'EncodeError',
+  'DecodeError')
 
 
 class ARDException(Exception):
-    pass
+  pass
 
 
 class EncodeError(ARDException):
-    pass
+  pass
 
 
 class DecodeError(ARDException):
-    pass
+  pass
